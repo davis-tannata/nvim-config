@@ -1,0 +1,1 @@
+return {'numToStr/FTerm.nvim'}
