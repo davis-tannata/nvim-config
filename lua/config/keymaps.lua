@@ -60,5 +60,7 @@ vim.keymap.set("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><
     desc =
     'replace current string'
 })
+
+vim.keymap.set("v", "<C-r>", '"hy:%s/<C-r>h//g<left><left>')
 vim.keymap.set("n", "<leader>XX", "<cmd>!chmod +x %<CR>", { silent = true })
 vim.keymap.set("n", "<leader>cd", "<cmd>lua vim.diagnostic.open_float(0,{scope= 'line'})<CR>")
