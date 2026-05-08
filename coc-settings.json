@@ -1,0 +1,27 @@
+{
+  "coc.preferences.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "flutter.fvm.enabled": true,
+  "flutter.sdk.searchPaths": ["~/fvm/versions"],
+  "flutter.sdk.path": "~/fvm/versions",
+  "flutter.autoOpenDevLog": true,
+  "flutter.autoHideDevLog": false,
+  "languageserver": {
+    "tsgo": {
+      "command": "tsgo",
+      "args": ["--lsp", "--stdio"],
+      "filetypes": [
+        "typescript",
+        "typescriptreact",
+        "javascript",
+        "javascriptreact",
+        "vue"
+      ],
+      "rootPatterns": ["tsconfig.json", "jsconfig.json", ".git/"]
+    }
+  },
+  "typescript.preferences.importModuleSpecifier": "non-relative",
+  "html.format.enable": true
+}

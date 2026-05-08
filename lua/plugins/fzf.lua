@@ -1,8 +1,10 @@
+-- ~/.config/nvim/lua/plugins/fzf-preview.lua
 return {
-  "ibhagwan/fzf-lua",
-  -- optional for icon support
-  dependencies = { "nvim-tree/nvim-web-devicons" },
-  -- or if using mini.icons/mini.nvim
-  -- dependencies = { "echasnovski/mini.icons" },
-  opts = {}
+    "yuki-yano/fzf-preview.vim",
+    branch = "release/rpc",
+    dependencies = { "junegunn/fzf", 'ryanoasis/vim-devicons' }, -- make sure fzf is installed
+    config = function()
+        -- Optional: default settings
+        vim.g.fzf_preview_preview_window = { "right:50%" }
+    end,
 }
