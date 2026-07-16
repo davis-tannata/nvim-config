@@ -147,6 +147,13 @@ vim.keymap.set("n", "<C-j>", "<cmd>cprev<CR>zz")
 vim.keymap.set("n", "<leader>k", "<cmd>lnext<CR>zz")
 vim.keymap.set("n", "<leader>j", "<cmd>lprev<CR>zz")
 
+--custom command palette (see lua/config/palette.lua)
+local palette = require("config.palette")
+vim.keymap.set("n", "<leader>of", palette.reveal_in_finder, { desc = "Reveal in Finder" })
+vim.keymap.set("n", "<leader>cf", palette.copy_path, { desc = "Copy full path" })
+vim.keymap.set("n", "<leader>cr", palette.copy_relative_path, { desc = "Copy path relative to cwd" })
+vim.keymap.set("n", "<leader>cc", palette.open, { desc = "Custom command menu" })
+
 -- Search and replace word under the cursor.
 vim.keymap.set("n", "<Leader>r", [[:%s/\<<C-r><C-w>\>//g<Left><Left>]])
 
