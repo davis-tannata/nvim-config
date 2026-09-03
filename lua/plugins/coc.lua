@@ -15,6 +15,10 @@ return {
 			-- If you have existing cmp mappings, you might want to unmap them here
 			-- to avoid conflicts, or only set CoC mappings if cmp is not loaded.
 			-- E.g., vim.keymap.del("i", "<C-Space>")
+
+			-- Auto-installed/updated coc extensions.
+			-- @tcx4c70/coc-csharp: Roslyn-based C# language server (used for Unity scripting).
+			vim.g.coc_global_extensions = { "@tcx4c70/coc-csharp" }
 		end,
 		keys = {
 			-- Example CoC keybindings (you'll customize these heavily)

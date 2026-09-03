@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+# Unity "External Script Editor" target.
+#
+# In Unity: Preferences > External Tools > External Script Editor > Browse to
+# this file, and set "External Script Editor Args" to:
+#   "$(File)" $(Line)
+#
+# Behaviour:
+#   - Finds the Unity project root (dir containing Assets/ + ProjectSettings/)
+#     and derives a session name from it the same way tmux-sessionizer does.
+#   - If an nvim instance is already listening for that project (socket at
+#     /tmp/nvim-unity-<session>.sock), jump straight to file:line in it and
+#     focus the tmux client running it.
+#   - Otherwise create a detached tmux session at the project root, start
+#     nvim --listen there, and open a new Alacritty window attached to it.
+
+file="${1:-}"
+line="${2:-1}"
+[[ "$line" =~ ^[0-9]+$ ]] || line=1
+
+nvim_bin="nvim"
+alacritty_bin="/opt/homebrew/bin/alacritty"
+
+find_project_root() {
+    local dir="$1"
+    for _ in $(seq 1 20); do
+        if [[ -d "$dir/Assets" && -d "$dir/ProjectSettings" ]]; then
+            printf '%s\n' "$dir"
+            return 0
+        fi
+        [[ "$dir" == "/" ]] && return 1
+        dir="$(dirname "$dir")"
+    done
+    return 1
+}
+
+start_dir="$PWD"
+[[ -n "$file" ]] && start_dir="$(dirname "$file")"
+
+project_root="$(find_project_root "$start_dir")" || project_root="$start_dir"
+session_name="$(basename "$project_root" | tr . _)"
+socket="/tmp/nvim-unity-${session_name}.sock"
+
+focus_tmux_session() {
+    while IFS= read -r tty; do
+        [[ -n "$tty" ]] && tmux switch-client -c "$tty" -t "$session_name" 2>/dev/null
+    done < <(tmux list-clients -F '#{client_tty}' 2>/dev/null)
+    open -a Alacritty 2>/dev/null
+}
+
+if nvim --server "$socket" --remote-expr '1' >/dev/null 2>&1; then
+    # Reuse the running instance: edit the file (nvim's own --remote handles
+    # path escaping) then jump to the line and center it.
+    if [[ -n "$file" ]]; then
+        nvim --server "$socket" --remote "$file" >/dev/null 2>&1
+        nvim --server "$socket" --remote-send "<Esc>:${line}<CR>zz" >/dev/null 2>&1
+    fi
+    focus_tmux_session
+    exit 0
+fi
+
+# No live instance for this project: drop any stale socket file (a dead
+# listener leaves the unix socket path behind, which blocks a fresh bind).
+rm -f "$socket"
+
+if ! tmux has-session -t "=$session_name" 2>/dev/null; then
+    tmux new-session -ds "$session_name" -c "$project_root" -n "$session_name"
+fi
+
+if [[ -n "$file" ]]; then
+    launch_cmd=$(printf '%s --listen %q +%q %q' "$nvim_bin" "$socket" "$line" "$file")
+else
+    launch_cmd=$(printf '%s --listen %q' "$nvim_bin" "$socket")
+fi
+tmux send-keys -t "$session_name" "$launch_cmd" Enter
+
+"$alacritty_bin" -e tmux attach -t "$session_name" >/dev/null 2>&1 &
+disown
